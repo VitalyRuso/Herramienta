@@ -1,0 +1,25 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Database
+leads.db
+*.db
+
+# Project exports
+exports/*
+!exports/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assistant files
+GEMINI.md

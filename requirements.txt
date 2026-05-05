@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+jinja2
+requests
+beautifulsoup4
+openpyxl
+python-multipart

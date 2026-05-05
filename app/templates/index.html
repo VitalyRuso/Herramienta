@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Lead Finder</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container">
+        <section class="hero">
+            <p class="badge">Herramienta B2B</p>
+            <h1>Master Lead Finder</h1>
+            <p>
+                Detecta empresas, analiza datos públicos y exporta oportunidades comerciales.
+            </p>
+        </section>
+
+        <section class="stats-grid">
+         <div class="stat-card">
+        <span>Total leads</span>
+        <strong id="statTotal">0</strong>
+            </div>
+
+             <div class="stat-card">
+        <span>Score medio</span>
+        <strong id="statAverage">0</strong>
+            </div>
+
+            <div class="stat-card">
+        <span>Ciudades</span>
+        <strong id="statCities">0</strong>
+            </div>
+
+            <div class="stat-card">
+        <span>Sectores</span>
+        <strong id="statSectors">0</strong>
+            </div>
+            </section>
+
+            <section class="card">
+            <h2>Analizar URLs públicas</h2>
+            <p class="muted">
+        Pega webs públicas de empresas, una por línea. La herramienta intentará detectar
+        nombre, email genérico, teléfono y redes sociales.
+        <strong>Máximo 100 URLs por análisis.</strong>
+    </p>
+
+    <form id="urlForm"
+        <div class="form-grid url-grid">
+            <label>
+                Sector
+                <input type="text" id="urlSector" value="restaurantes" required>
+            </label>
+
+            <label>
+                Ciudad
+                <input type="text" id="urlCity" value="Madrid" required>
+            </label>
+
+            <label>
+                País
+                <input type="text" id="urlCountry" value="España" required>
+            </label>
+            </div>
+
+            <label class="textarea-label">
+            URLs públicas
+            <textarea id="urlsInput" rows="6" placeholder="https://empresa1.es&#10;https://empresa2.es"></textarea>
+            </label>
+
+            <button type="submit">Analizar URLs</button>
+            </form>
+
+            
+        </section>
+
+        <section class="card">
+             <h2>Importar URLs desde archivo</h2>
+            <p class="muted">
+         Sube un archivo TXT o CSV con URLs de empresas. La herramienta analizará las webs
+          y guardará los leads detectados.
+         </p>
+
+        <form id="fileForm">
+        <div class="form-grid url-grid">
+            <label>
+                Sector
+                <input type="text" id="fileSector" value="restaurantes" required>
+            </label>
+
+            <label>
+                Ciudad
+                <input type="text" id="fileCity" value="Madrid" required>
+            </label>
+
+            <label>
+                País
+                <input type="text" id="fileCountry" value="España" required>
+            </label>
+        </div>
+
+        <label class="textarea-label">
+            Archivo TXT/CSV
+            <input type="file" id="urlsFile" accept=".txt,.csv" required>
+        </label>
+
+        <button type="submit">Importar y analizar archivo</button>
+    </form>
+        </section>
+
+         <section id="analysisResultCard" class="card hidden">
+    <div class="section-title">
+        <h2>Resultado del análisis</h2>
+        <a class="button secondary" href="/api/export/excel">Descargar Excel</a>
+    </div>
+
+    <div class="result-grid">
+        <div class="result-box">
+            <span>URLs detectadas</span>
+            <strong id="resultTotalUrls">0</strong>
+        </div>
+
+        <div class="result-box">
+            <span>Leads creados/actualizados</span>
+            <strong id="resultCreated">0</strong>
+        </div>
+
+        <div class="result-box">
+            <span>Errores</span>
+            <strong id="resultErrors">0</strong>
+        </div>
+    </div>
+
+    <div id="errorsBox" class="errors-box hidden">
+        <h3>Errores detectados</h3>
+        <ul id="errorsList"></ul>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Filtros</h2>
+
+    <div class="form-grid filters-grid">
+        <label>
+            Filtrar sector
+            <input type="text" id="filterSector" placeholder="Ej: restaurantes">
+        </label>
+
+        <label>
+            Filtrar ciudad
+            <input type="text" id="filterCity" placeholder="Ej: Madrid">
+        </label>
+
+        <label>
+            Score mínimo
+            <input type="number" id="filterScore" value="0" min="0" max="100">
+        </label>
+
+        <button type="button" onclick="loadLeads()">Aplicar filtros</button>
+        <button type="button" class="dark" onclick="resetFilters()">Quitar filtros</button>
+    </div>
+</section>
+
+<section class="card actions-card">
+    <div class="section-title">
+        <div>
+            <h2>Acciones rápidas</h2>
+            <p class="px-1,muted">Actualiza, exporta o limpia los resultados.</p>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="loadLeads()">Actualizar lista</button>
+        <a class="button success" href="/api/export/excel">Exportar Excel</a>
+        <button class="danger" onclick="clearLeads()">Limpiar leads</button>
+    </div>
+</section>
+
+<section class="card">
+    <div class="section-title">
+        <h2>Resultados</h2>
+        <div id="counter" class="counter">0 leads</div>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Sector</th>
+                    <th>Ciudad</th>
+                    <th>Web</th>
+                    <th>Contacto</th>
+                    <th>Score</th>
+                    <th>Oportunidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="leadsTable"></tbody>
+        </table>
+    </div>
+</section>
+        </main>
+
+    <div id="leadModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <p class="badge small-badge">Detalle del lead</p>
+                <h2 id="modalCompanyName">Empresa</h2>
+            </div>
+
+            <button class="modal-close" onclick="closeLeadDetail()">×</button>
+        </div>
+
+        <div class="modal-grid">
+            <div class="modal-box">
+                <span>Sector</span>
+                <strong id="modalSector">-</strong>
+            </div>
+
+            <div class="modal-box">
+                <span>Ciudad</span>
+                <strong id="modalCity">-</strong>
+            </div>
+
+            <div class="modal-box">
+                <span>Score</span>
+                <strong id="modalScore">-</strong>
+            </div>
+
+            <div class="modal-box">
+                <span>Oportunidad</span>
+                <strong id="modalOpportunity">-</strong>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <h3>Contacto</h3>
+            <p><strong>Web:</strong> <span id="modalWebsite">-</span></p>
+            <p><strong>Email:</strong> <span id="modalEmail">-</span></p>
+            <p><strong>Teléfono:</strong> <span id="modalPhone">-</span></p>
+            <p><strong>Redes:</strong> <span id="modalSocialLinks">-</span></p>
+        </div>
+
+        <div class="modal-section">
+            <h3>Análisis comercial</h3>
+            <p><strong>Calidad:</strong> <span id="modalQuality">-</span></p>
+            <p><strong>Etiquetas:</strong> <span id="modalTags">-</span></p>
+            <p><strong>Notas:</strong> <span id="modalNotes">-</span></p>
+        </div>
+
+        <div class="modal-section">
+            <h3>Fuente</h3>
+            <p><strong>URL fuente:</strong> <span id="modalSourceUrl">-</span></p>
+            <p><strong>Tipo:</strong> <span id="modalSourceType">-</span></p>
+        </div>
+
+        <div class="modal-actions">
+            <button onclick="enrichSelectedLead()">Enriquecer lead</button>
+            <button class="danger" onclick="deleteSelectedLead()">Eliminar lead</button>
+        </div>
+    </div>
+</div>
+    <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-card">
+        <div class="spinner"></div>
+        <h3 id="loadingTitle">Procesando...</h3>
+        <p id="loadingText">La herramienta está analizando los datos. Espera un momento.</p>
+    </div>
+    </div>
+
+   <script src="/static/app.js"></script>
+</body>
+</html>
